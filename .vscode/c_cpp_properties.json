@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+				"_UNICODE",
+				"__CC_ARM",
+				"CAN1"
+            ],
+            "windowsSdkVersion": "10.0.18362.0",
+            "intelliSenseMode": "${default}",
+            "cStandard": "c11",
+            "cppStandard":"c++17"
+        }
+    ],
+    "version": 4
+}

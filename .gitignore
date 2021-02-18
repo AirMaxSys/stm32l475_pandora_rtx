@@ -1,0 +1,6 @@
+MDK-ARM/**
+!MDK-ARM/*.s
+!MDK-ARM/*.uvoptx
+!MDK-ARM/*.uvprojx
+out/
+build/
