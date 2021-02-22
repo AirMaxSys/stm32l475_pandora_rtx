@@ -30,7 +30,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "cmsis_os2.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -61,7 +61,15 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+void led_blink_thread(void *argv)
+{
+	while (1) {
+		HAL_GPIO_WritePin(LED_red_GPIO_Port, LED_red_Pin, GPIO_PIN_RESET);
+		osDelay(500);
+		HAL_GPIO_WritePin(LED_red_GPIO_Port, LED_red_Pin, GPIO_PIN_SET);
+		osDelay(500);
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -102,7 +110,11 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
   /* USER CODE BEGIN 2 */
-
+  
+  osKernelInitialize();
+  osThreadNew(led_blink_thread, NULL, NULL);
+  osKernelStart();
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */
