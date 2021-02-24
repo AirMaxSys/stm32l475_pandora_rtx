@@ -31,6 +31,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "cmsis_os2.h"
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -68,6 +71,7 @@ void led_blink_thread(void *argv)
 		osDelay(500);
 		HAL_GPIO_WritePin(LED_red_GPIO_Port, LED_red_Pin, GPIO_PIN_SET);
 		osDelay(500);
+		printf("usart test!\r\n");
 	}
 }
 /* USER CODE END 0 */
