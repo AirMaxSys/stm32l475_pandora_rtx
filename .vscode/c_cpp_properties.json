@@ -10,7 +10,9 @@
                 "UNICODE",
 				"_UNICODE",
 				"__CC_ARM",
-				"CAN1"
+				"CAN1",
+				"USE_HAL_DRIVER",
+				"STM32L475xx"
             ],
             "windowsSdkVersion": "10.0.18362.0",
             "intelliSenseMode": "${default}",

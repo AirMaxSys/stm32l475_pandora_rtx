@@ -1,5 +1,5 @@
-#ifndef _I2C_SOFT_
-#define	_I2C_SOFT
+#ifndef _I2C_SOFT_H_
+#define	_I2C_SOFT_H_
 
 #include "main.h"	// GPIO port define
 #include "common.h"
