@@ -3,7 +3,7 @@
 
 #include "main.h"	// GPIO port define
 #include "common.h"
-#include <stdint>
+#include <stdint.h>
 
 typedef enum {
 	I2C_SOFT_ERR_NONE = 0,
@@ -16,6 +16,6 @@ typedef struct i2c_soft {
 	gpio_t *scl;
 	uint8_t slave_addr;
 	uint8_t addr_len;
-} i2c_soft_t;
+} i2c_soft_t, *p_i2c_sf;
 
 #endif

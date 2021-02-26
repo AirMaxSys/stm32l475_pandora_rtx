@@ -2,7 +2,7 @@
 
 i2c_soft_err_enum_t i2c_soft_init(i2c_soft_t *i2c, gpio_t *sda, gpio_t *scl, uint8_t slave_addr, uint8_t addr_len)
 {
-	if (!sda || !sck)
+	if (!sda || !scl)
 		return I2C_SOFT_ERR_GPIO_PORT;
 	if (addr_len != 7 || addr_len != 10)
 		return I2C_SOFT_ERR_ADDR_LEN;
@@ -10,6 +10,7 @@ i2c_soft_err_enum_t i2c_soft_init(i2c_soft_t *i2c, gpio_t *sda, gpio_t *scl, uin
 	GPIO_InitTypeDef gpio_init = {0};
 
 	/* configure i2c soft struct*/
+	p_i2c_sf = i2c;
 	i2c->sda = sda;
 	i2c->scl = scl;
 	i2c->slave_addr = slave_addr;
