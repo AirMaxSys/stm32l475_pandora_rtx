@@ -31,6 +31,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "cmsis_os2.h"
+#include "aht10.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -66,12 +67,31 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 void led_blink_thread(void *argv)
 {
+	UNUSED(argv);
+
 	while (1) {
 		HAL_GPIO_WritePin(LED_red_GPIO_Port, LED_red_Pin, GPIO_PIN_RESET);
 		osDelay(500);
 		HAL_GPIO_WritePin(LED_red_GPIO_Port, LED_red_Pin, GPIO_PIN_SET);
 		osDelay(500);
-		printf("usart test!\r\n");
+//		printf("usart test!\r\n");
+	}
+}
+
+void test_app(void *argv)
+{
+	UNUSED(argv);
+	aht10_t aht10;
+
+	aht10_init(&aht10);
+	printf("aht10 status:0x%02x\r\n", aht10_status_reg());
+	printf("aht10 status:0x%02x\r\n", aht10_status_reg());
+	printf("aht10 status:0x%02x\r\n", aht10_status_reg());
+	printf("aht10 status:0x%02x\r\n", aht10_status_reg());
+	osDelay(300);
+	while (1) {
+		aht10_get_value();
+		osDelay(500);
 	}
 }
 /* USER CODE END 0 */
@@ -116,7 +136,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   
   osKernelInitialize();
-  osThreadNew(led_blink_thread, NULL, NULL);
+//   osThreadNew(led_blink_thread, NULL, NULL);
+  osThreadNew(test_app, NULL, NULL);
   osKernelStart();
   
   /* USER CODE END 2 */

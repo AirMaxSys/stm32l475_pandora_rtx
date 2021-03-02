@@ -313,7 +313,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>7</Optim>
+            <Optim>1</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32L475xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32L4xx_HAL_Driver/Inc;../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32L4xx/Include;../Drivers/CMSIS/Include;..\RTOS\RTX\Include;..\RTOS\RTX\Source;..\RTOS\RTX\Config;..\RTOS\RTX\Include1;..\Drivers\CMSIS\RTOS2\Include</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32L4xx_HAL_Driver/Inc;../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32L4xx/Include;../Drivers/CMSIS/Include;..\RTOS\RTX\Include;..\RTOS\RTX\Source;..\RTOS\RTX\Config;..\RTOS\RTX\Include1;..\Drivers\CMSIS\RTOS2\Include;..\BSP</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -702,6 +702,21 @@
               <FileName>RTX_Config.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\RTOS\RTX\Config\RTX_Config.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>BSP</GroupName>
+          <Files>
+            <File>
+              <FileName>aht10.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\aht10.c</FilePath>
+            </File>
+            <File>
+              <FileName>i2c_soft.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\i2c_soft.c</FilePath>
             </File>
           </Files>
         </Group>
