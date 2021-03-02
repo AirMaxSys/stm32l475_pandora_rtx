@@ -25,6 +25,10 @@ typedef struct i2c_soft {
 	uint16_t slave_addr;
 	uint8_t addr_len;
 	i2c_soft_err_enum_t err_code;
-} i2c_soft_t, *p_i2c_sf;
+} i2c_soft_t;
+
+i2c_soft_err_enum_t i2c_soft_init(i2c_soft_t *i2c);
+i2c_soft_err_enum_t i2c_soft_write(uint8_t *buffer, uint16_t len);
+i2c_soft_err_enum_t i2c_soft_read(uint8_t *buffer, uint16_t len);
 
 #endif
