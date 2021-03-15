@@ -10,6 +10,8 @@
 
 #include "tft.h"
 
+#define TFT_RST_LO()	HAL_GPIO_WritePin(LCD_RST_GPIO_Port, LCD_RST_Pin, GPIO_PIN_RESET)
+#define TFT_RST_HI()	HAL_GPIO_WritePin(LCD_RST_GPIO_Port, LCD_RST_Pin, GPIO_PIN_SET)
 #define TFT_CS_LO()		HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET)
 #define TFT_CS_HI()		HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET)
 #define	TFT_WR_DAT()	HAL_GPIO_WritePin(LCD_WR_GPIO_Port, LCD_WR_Pin, GPIO_PIN_SET)
@@ -29,6 +31,21 @@ static int8_t tft_write_dat()
 	TFT_CS_LO();
 
 	TFT_CS_HI();
+}
+
+void tft_hw_reset(void)
+{
+	TFT_RST_LO();
+	// hold more than 10us
+	HAL_Delay(1);
+	TFT_RST_HI();
+	// wait for chip initial register value
+	HAL_Delay(5);
+}
+
+void tft_soft_reset(void)
+{
+
 }
 
 int8_t tft_send_datas()
