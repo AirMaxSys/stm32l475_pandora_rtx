@@ -32,6 +32,7 @@
 /* USER CODE BEGIN Includes */
 #include "cmsis_os2.h"
 #include "aht10.h"
+#include "tft.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -85,6 +86,16 @@ void test_app(void *argv)
 	osDelay(300);
 	while (1) {
 		aht10_get_value(&aht10);
+		osDelay(2000);
+	}
+}
+
+void test_tft_lcd_app(void *argv)
+{
+	(void)argv;
+	tft_power_on();
+	while(1) {
+		tft_read_display_id();
 		osDelay(500);
 	}
 }
@@ -132,6 +143,7 @@ int main(void)
   osKernelInitialize();
   osThreadNew(led_blink_thread, NULL, NULL);
   osThreadNew(test_app, NULL, NULL);
+  osThreadNew(test_tft_lcd_app, NULL, NULL);
   osKernelStart();
   
   /* USER CODE END 2 */

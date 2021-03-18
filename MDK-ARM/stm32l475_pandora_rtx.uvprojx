@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32L475xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32L4xx_HAL_Driver/Inc;../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32L4xx/Include;../Drivers/CMSIS/Include;..\RTOS\RTX\Include;..\RTOS\RTX\Source;..\RTOS\RTX\Config;..\RTOS\RTX\Include1;..\Drivers\CMSIS\RTOS2\Include;..\BSP</IncludePath>
+              <IncludePath>../Core/Inc;  ../Drivers/STM32L4xx_HAL_Driver/Inc;  ../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy;  ../Drivers/CMSIS/Device/ST/STM32L4xx/Include;  ../Drivers/CMSIS/Include;  ..\RTOS\RTX\Include;  ..\RTOS\RTX\Source;  ..\RTOS\RTX\Config;  ..\RTOS\RTX\Include1;  ..\Drivers\CMSIS\RTOS2\Include;  ..\BSP</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -614,14 +614,14 @@
           <GroupName>Drivers/CMSIS</GroupName>
           <Files>
             <File>
-              <FileName>system_stm32l4xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Core/Src/system_stm32l4xx.c</FilePath>
-            </File>
-            <File>
               <FileName>os_systick.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\CMSIS\RTOS2\Source\os_systick.c</FilePath>
+            </File>
+            <File>
+              <FileName>system_stm32l4xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Core/Src/system_stm32l4xx.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -717,6 +717,11 @@
               <FileName>i2c_soft.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\BSP\i2c_soft.c</FilePath>
+            </File>
+            <File>
+              <FileName>tft.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\tft.c</FilePath>
             </File>
           </Files>
         </Group>
