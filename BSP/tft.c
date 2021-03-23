@@ -30,17 +30,57 @@ static int8_t tft_write_cmd(uint8_t cmd)
 {
 	TFT_WR_CMD();
 	TFT_CS_LO();
-	if (HAL_SPI_Transmit(&hspi3, &cmd, 1, HAL_MAX_DELAY) != HAL_OK)
+	if (HAL_SPI_Transmit(&hspi3, &cmd, 1, HAL_MAX_DELAY) != HAL_OK) {
+		TFT_CS_HI();
 		return -1;
+	}
 	TFT_CS_HI();
 	return 0;
 }
 
-static int8_t tft_write_dat()
+static int8_t tft_wr_cmd_rd_dat(uint8_t cmd, uint8_t *dat)
+{
+
+	TFT_CS_LO();
+	TFT_WR_CMD();
+	if (HAL_SPI_Transmit(&hspi3, &cmd, 1, HAL_MAX_DELAY) != HAL_OK) {
+		TFT_CS_HI();
+		return -1;
+	}
+	
+	TFT_WR_DAT();
+	if (HAL_SPI_Receive(&hspi3, dat, 1, HAL_MAX_DELAY) != HAL_OK) {
+		TFT_CS_HI();
+		return -1;
+	}
+	TFT_CS_HI();
+	return 0;
+}
+
+int8_t tft_write_dats(uint8_t cmd, uint8_t *txbuf, uint16_t len)
+{
+	TFT_CS_LO();
+	TFT_WR_CMD();
+	if (HAL_SPI_Transmit(&hspi3, &cmd, 1, HAL_MAX_DELAY) != HAL_OK)
+		TFT_CS_HI();
+		return -1;
+	TFT_WR_DAT();
+	if (HAL_SPI_Transmit(&hspi3, &txbuf, len, HAL_MAX_DELAY) != HAL_OK) {
+		TFT_CS_HI();
+		return -1;
+	}
+	TFT_CS_HI();
+	return 0;
+}
+
+int8_t tft_read_dats(uint8_t *rxbuf, uint16_t len)
 {
 	TFT_WR_DAT();
 	TFT_CS_LO();
-
+	if (HAL_SPI_Receive(&hspi3, rxbuf, len, HAL_MAX_DELAY) != HAL_OK) {
+		TFT_CS_HI();
+		return -1;
+	}
 	TFT_CS_HI();
 	return 0;
 }
@@ -66,26 +106,14 @@ void tft_hw_reset(void)
 	HAL_Delay(5);
 }
 
-int8_t tft_send_datas()
-{
-	return 0;
-}
-
-int8_t tft_recv_datas(uint8_t *rxbuf, uint16_t len)
-{
-	TFT_WR_DAT();
-	TFT_CS_LO();
-	if (HAL_SPI_Receive(&hspi3, rxbuf, len, HAL_MAX_DELAY) != HAL_OK)
-		return -1;
-	TFT_CS_HI();
-	return 0;
-}
-
 /* command functions*/
 
 void tft_sw_reset(void)
 {
-
+	tft_write_cmd(TFT_CMD_SW_RESET);
+	// in normal mode wait at least 5ms
+	HAL_Delay(5);
+	// in sleep in mode wait at least 120ms
 }
 
 void tft_read_display_id(void)
@@ -93,35 +121,12 @@ void tft_read_display_id(void)
 	uint8_t cmd = 0x0;
 	uint8_t rxbuf[3] = {0x0};
 
-	// write command
-	cmd = 0xDA;
-	TFT_CS_LO();
-	TFT_WR_CMD();
-	HAL_SPI_Transmit(&hspi3, &cmd, 1, HAL_MAX_DELAY);
-	
-	TFT_WR_DAT();
-	HAL_SPI_Receive(&hspi3, rxbuf, 1, HAL_MAX_DELAY);
-	TFT_CS_HI();
-	
-	cmd = 0xDB;
-	TFT_CS_LO();
-	TFT_WR_CMD();
-	HAL_SPI_Transmit(&hspi3, &cmd, 1, HAL_MAX_DELAY);
-	
-	TFT_WR_DAT();
-	HAL_SPI_Receive(&hspi3, &rxbuf[1], 1, HAL_MAX_DELAY);
-	TFT_CS_HI();
-	
-	cmd = 0xDC;
-	TFT_CS_LO();
-	TFT_WR_CMD();
-	HAL_SPI_Transmit(&hspi3, &cmd, 1, HAL_MAX_DELAY);
-	
-	TFT_WR_DAT();
-	HAL_SPI_Receive(&hspi3, &rxbuf[2], 1, HAL_MAX_DELAY);
-	TFT_CS_HI();
+	/* get LCD IDs*/
+	tft_wr_cmd_rd_dat(TFT_CMD_RDID1, &rxbuf[0]);
+	tft_wr_cmd_rd_dat(TFT_CMD_RDID2, &rxbuf[1]);
+	tft_wr_cmd_rd_dat(TFT_CMD_RDID3, &rxbuf[2]);
 
-	/* output*/
+	/* debug output*/
 	printf("display id row data:");
 	for (uint8_t i = 0; i < 3; ++i)
 		printf("0x%02x ", rxbuf[i]);
