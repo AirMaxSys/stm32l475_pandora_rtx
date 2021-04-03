@@ -76,12 +76,11 @@ void led_blink_thread(void *argv)
 	}
 }
 
-void test_app(void *argv)
+void temp_humi_smaple_thread(void *argv)
 {
 	aht10_t aht10;
 
 	aht10_init(&aht10);
-	printf("aht10 status register is:0x%02x\r\n", aht10_status_reg());
 	// must wait at least 300ms
 	osDelay(300);
 	while (1) {
@@ -90,7 +89,7 @@ void test_app(void *argv)
 	}
 }
 
-void test_tft_lcd_app(void *argv)
+void lcd_display_thread(void *argv)
 {
 	(void)argv;
 	tft_power_on();
@@ -142,8 +141,8 @@ int main(void)
   
   osKernelInitialize();
   osThreadNew(led_blink_thread, NULL, NULL);
-  osThreadNew(test_app, NULL, NULL);
-  osThreadNew(test_tft_lcd_app, NULL, NULL);
+  osThreadNew(temp_humi_smaple_thread, NULL, NULL);
+  osThreadNew(lcd_display_thread, NULL, NULL);
   osKernelStart();
   
   /* USER CODE END 2 */

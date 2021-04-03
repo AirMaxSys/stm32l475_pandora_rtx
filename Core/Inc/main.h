@@ -119,6 +119,8 @@ void Error_Handler(void);
 #define LCD_RST_GPIO_Port GPIOB
 #define LCD_PWR_Pin GPIO_PIN_7
 #define LCD_PWR_GPIO_Port GPIOB
+#define I2C_SOFT_SDA_Port GPIOC
+#define I2C_SOFT_SDA_Pin GPIO_PIN_1
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

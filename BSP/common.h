@@ -5,8 +5,8 @@
 #include <stdint.h>
 
 typedef struct gpio {
-	GPIO_TypeDef *port;
-	uint32_t pin;
+    GPIO_TypeDef *port;
+    uint32_t pin;
 } gpio_t;
 
 #endif

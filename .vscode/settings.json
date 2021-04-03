@@ -3,6 +3,8 @@
 	"files.associations": {
 		"i2c_soft.h": "c",
 		"aht10.h": "c",
-		"stm32l4xx_hal.h": "c"
+		"stm32l4xx_hal.h": "c",
+		"common.h": "c",
+		"stdint.h": "c"
 	}
 }
