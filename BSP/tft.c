@@ -65,7 +65,7 @@ int8_t tft_write_dats(uint8_t cmd, uint8_t *txbuf, uint16_t len)
 		TFT_CS_HI();
 		return -1;
 	TFT_WR_DAT();
-	if (HAL_SPI_Transmit(&hspi3, &txbuf, len, HAL_MAX_DELAY) != HAL_OK) {
+	if (HAL_SPI_Transmit(&hspi3, txbuf, len, HAL_MAX_DELAY) != HAL_OK) {
 		TFT_CS_HI();
 		return -1;
 	}
