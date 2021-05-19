@@ -15,14 +15,8 @@
 #include <string.h>
 #include <stdio.h>
 
-#define TFT_PWR_ON()	HAL_GPIO_WritePin(LCD_PWR_GPIO_Port, LCD_PWR_Pin, GPIO_PIN_SET)
-#define TFT_PWR_OFF()	HAL_GPIO_WritePin(LCD_PWR_GPIO_Port, LCD_PWR_Pin, GPIO_PIN_RESET)
-#define TFT_RST_LO()	HAL_GPIO_WritePin(LCD_RST_GPIO_Port, LCD_RST_Pin, GPIO_PIN_RESET)
-#define TFT_RST_HI()	HAL_GPIO_WritePin(LCD_RST_GPIO_Port, LCD_RST_Pin, GPIO_PIN_SET)
-#define TFT_CS_LO()		HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET)
-#define TFT_CS_HI()		HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET)
-#define	TFT_WR_DAT()	HAL_GPIO_WritePin(LCD_WR_GPIO_Port, LCD_WR_Pin, GPIO_PIN_SET)
-#define	TFT_WR_CMD()	HAL_GPIO_WritePin(LCD_WR_GPIO_Port, LCD_WR_Pin, GPIO_PIN_RESET)
+#define BTH(v)      (((v) & 0xFF00) >> 8)
+#define BTL(v)      (((v) & 0x00FF) >> 0)
 
 extern SPI_HandleTypeDef hspi3;
 
@@ -87,7 +81,38 @@ int8_t tft_read_dats(uint8_t *rxbuf, uint16_t len)
 
 void tft_init(void)
 {
+    uint8_t dat = 0x0;
+    TFT_RST_HI();
+    tft_write_cmd(TFT_CMD_SW_RESET);
+    HAL_Delay(150);
+    // sleep out cmd
+    tft_write_cmd(0x11);
+    HAL_Delay(150);
+    tft_write_dats(0x36, &dat, 1);
+    dat = 4;
+    tft_write_dats(0x26, &dat, 1);
+    dat = 0x6;
+    tft_write_dats(0x3A, &dat, 1);
+    tft_write_cmd(0x29);
+    HAL_Delay(100);
+}
 
+void tft_set_display_window(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
+{
+    uint8_t txbuf[4] = {0x0};
+
+    txbuf[0] = BTH(x1);
+    txbuf[1] = BTL(x1);
+    txbuf[2] = BTH(x2);
+    txbuf[3] = BTL(x2);
+    tft_write_dats(0x2A, txbuf, 4);
+    txbuf[0] = BTH(y1);
+    txbuf[1] = BTL(y1);
+    txbuf[2] = BTH(y2);
+    txbuf[3] = BTL(y2);
+    tft_write_dats(0x2B, txbuf, 4);
+	
+	tft_write_cmd(0x2C);
 }
 
 void tft_power_on(void)

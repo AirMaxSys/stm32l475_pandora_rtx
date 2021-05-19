@@ -91,11 +91,34 @@ void temp_humi_smaple_thread(void *argv)
 
 void lcd_display_thread(void *argv)
 {
+    uint8_t txbuf[3] = {63, 0, 0};
 	(void)argv;
 	tft_power_on();
+    tft_read_display_id();
+    tft_init();
+	tft_set_display_window(0, 0, 240, 360);
 	while(1) {
-		tft_read_display_id();
-		osDelay(500);
+        TFT_CS_LO();
+        TFT_WR_DAT();
+        for (uint16_t i = 0; i < 240; ++i) {
+            for (uint16_t k = 0; k < 360; ++k) {
+                HAL_SPI_Transmit(&hspi3, txbuf, 3, HAL_MAX_DELAY);
+            }
+        }
+        TFT_CS_HI();
+        osDelay(500);
+		
+		txbuf[0] = 125;
+		txbuf[1] = 125;
+		tft_set_display_window(50, 50, 150, 150);
+        TFT_CS_LO();
+        TFT_WR_DAT();
+        for (uint16_t i = 0; i < 100; ++i) {
+            for (uint16_t k = 0; k < 100; ++k) {
+                HAL_SPI_Transmit(&hspi3, txbuf, 3, HAL_MAX_DELAY);
+            }
+        }
+        TFT_CS_HI();
 	}
 }
 /* USER CODE END 0 */
