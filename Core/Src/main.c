@@ -66,7 +66,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void led_blink_thread(void *argv)
+void led_blink_task(void *argv)
 {
 	while (1) {
 		HAL_GPIO_WritePin(LED_red_GPIO_Port, LED_red_Pin, GPIO_PIN_RESET);
@@ -76,7 +76,7 @@ void led_blink_thread(void *argv)
 	}
 }
 
-void temp_humi_smaple_thread(void *argv)
+void temp_humi_smaple_task(void *argv)
 {
 	aht10_t aht10;
 
@@ -89,7 +89,7 @@ void temp_humi_smaple_thread(void *argv)
 	}
 }
 
-void lcd_display_thread(void *argv)
+void lcd_display_task(void *argv)
 {
     uint8_t txbuf[3] = {63, 0, 0};
 	(void)argv;
@@ -162,10 +162,13 @@ int main(void)
   MX_USB_OTG_FS_PCD_Init();
   /* USER CODE BEGIN 2 */
   
+  // Initialize CMSIS-RTOS
   osKernelInitialize();
-  osThreadNew(led_blink_thread, NULL, NULL);
-  osThreadNew(temp_humi_smaple_thread, NULL, NULL);
-  osThreadNew(lcd_display_thread, NULL, NULL);
+  // Create tasks
+  osThreadNew(led_blink_task, NULL, NULL);
+  osThreadNew(temp_humi_smaple_task, NULL, NULL);
+  osThreadNew(lcd_display_task, NULL, NULL);
+  // Start task excution
   osKernelStart();
   
   /* USER CODE END 2 */
