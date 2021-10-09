@@ -60,7 +60,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(WIFI_INT_GPIO_Port, WIFI_INT_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, BEEP_Pin|LCD_WR_Pin|LCD_RST_Pin|LCD_PWR_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, BEEP_Pin|LCD_DC_Pin|LCD_RST_Pin|LCD_PWR_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOE, LED_red_Pin|LED_green_Pin|LED_blue_Pin, GPIO_PIN_SET);
@@ -86,7 +86,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PBPin PBPin PBPin PBPin */
-  GPIO_InitStruct.Pin = BEEP_Pin|LCD_WR_Pin|LCD_RST_Pin|LCD_PWR_Pin;
+  GPIO_InitStruct.Pin = BEEP_Pin|LCD_DC_Pin|LCD_RST_Pin|LCD_PWR_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

@@ -18,9 +18,11 @@ extern SPI_HandleTypeDef hspi3;
 
 static inline void st7789_delay(const uint16_t ms)
 {
-#if USE_RTOS == 1
+#if USE_RTX_RTOS == 1
     osDelay(ms);
-#else
+#elif USING_UCOS_RTOS == 1
+#elif USING_FREE_RTOS == 1
+#elif USING_ST_HAL_LIB == 1
     HAL_Delay(ms);
 #endif
 }
@@ -32,14 +34,18 @@ static inline void st7789_pin_write(const GPIO_TypeDef *port, uint16_t pin, uint
 
 static void st7789_write_cmd(const uint8_t cmd)
 {
-    st7789_pin_write(LCD_WR_GPIO_Port, LCD_WR_Pin, GPIO_PIN_RESET);
+    st7789_pin_write(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_RESET);
+    st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET);
     HAL_SPI_Transmit_IT(&hspi3, &cmd, 1);
+    st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);
 }
 
 static void st7789_write_data(const uint8_t data)
 {
-    st7789_pin_write(LCD_WR_GPIO_Port, LCD_WR_Pin, GPIO_PIN_SET);
+    st7789_pin_write(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_SET);
+    st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET);
     HAL_SPI_Transmit_IT(&hspi3, &data, 1);
+    st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);
 }
 
 void st7789_power_on(void)
@@ -67,10 +73,94 @@ void st7789_exit_sleep(void)
     st7789_delay(120);
 }
 
-void st7789_init(void)
+void st7789_reset(void)
 {
+    st7789_pin_write(LCD_RST_GPIO_Port, LCD_RST_Pin, GPIO_PIN_RESET);
+    st7789_delay(100);
+    st7789_pin_write(LCD_RST_GPIO_Port, LCD_RST_Pin, GPIO_PIN_SET);
 }
 
-void tft_set_display_window(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
+void st7789_init(void)
 {
+    st7789_reset();
+    /* Memory Data Access Control */
+    st7789_write_cmd(0x36);
+    st7789_write_data(0x00);
+    /* Seting RGB565 */
+    st7789_write_cmd(0x3A);
+    st7789_write_data(0x65);
+    /* Porch Setting */
+    st7789_write_cmd(0xB2);
+    st7789_write_data(0x0C);
+    st7789_write_data(0x0C);
+    st7789_write_data(0x00);
+    st7789_write_data(0x33);
+    st7789_write_data(0x33);
+    /*  Gate Control */
+    st7789_write_cmd(0xB7);
+    st7789_write_data(0x35);
+    /* VCOM Setting */
+    st7789_write_cmd(0xBB);
+    st7789_write_data(0x19);
+    /* LCM Control */
+    st7789_write_cmd(0xC0);
+    st7789_write_data(0x2C);
+    /* VDV and VRH Command Enable */
+    st7789_write_cmd(0xC2);
+    st7789_write_data(0x01);
+    /* VRH Set */
+    st7789_write_cmd(0xC3);
+    st7789_write_data(0x12);
+    /* VDV Set */
+    st7789_write_cmd(0xC4);
+    st7789_write_data(0x20);
+    /* Frame Rate Control in Normal Mode */
+    st7789_write_cmd(0xC6);
+    st7789_write_data(0x0F);
+    /* Power Control 1 */
+    st7789_write_cmd(0xD0);
+    st7789_write_data(0xA4);
+    st7789_write_data(0xA1);
+    /* Positive Voltage Gamma Control */
+    st7789_write_cmd(0xE0);
+    st7789_write_data(0xD0);
+    st7789_write_data(0x04);
+    st7789_write_data(0x0D);
+    st7789_write_data(0x11);
+    st7789_write_data(0x13);
+    st7789_write_data(0x2B);
+    st7789_write_data(0x3F);
+    st7789_write_data(0x54);
+    st7789_write_data(0x4C);
+    st7789_write_data(0x18);
+    st7789_write_data(0x0D);
+    st7789_write_data(0x0B);
+    st7789_write_data(0x1F);
+    st7789_write_data(0x23);
+    /* Negative Voltage Gamma Control */
+    st7789_write_cmd(0xE1);
+    st7789_write_data(0xD0);
+    st7789_write_data(0x04);
+    st7789_write_data(0x0C);
+    st7789_write_data(0x11);
+    st7789_write_data(0x13);
+    st7789_write_data(0x2C);
+    st7789_write_data(0x3F);
+    st7789_write_data(0x44);
+    st7789_write_data(0x51);
+    st7789_write_data(0x2F);
+    st7789_write_data(0x1F);
+    st7789_write_data(0x1F);
+    st7789_write_data(0x20);
+    st7789_write_data(0x23);
+    /* Display Inversion On */
+    st7789_write_cmd(0x21);
+    /* Sleep Out */
+    st7789_write_cmd(0x11);
+    /* wait for power stability */
+    st7789_delay(100);
+
+    /* Display on*/
+    st7789_power_on();
+    st7789_write_cmd(0x29);
 }
