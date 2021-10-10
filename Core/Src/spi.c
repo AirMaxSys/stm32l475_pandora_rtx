@@ -182,7 +182,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     hdma_spi3_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
     hdma_spi3_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_spi3_tx.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_spi3_tx.Init.Mode = DMA_CIRCULAR;
+    hdma_spi3_tx.Init.Mode = DMA_NORMAL;
     hdma_spi3_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_spi3_tx.Init.PeriphInc = DMA_PINC_DISABLE;
     hdma_spi3_tx.Init.Priority = DMA_PRIORITY_HIGH;
@@ -191,11 +191,12 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     __HAL_LINKDMA(&hspi3, hdmatx, hdma_spi3_tx);
 
     // LCD transmition using DMA
-    HAL_NVIC_SetPriority(DMA2_Channel2_IRQn, 0, 0);
+    // NOTE: DMA TC or HT interrupt priority cannot higher than SPI TC
+    HAL_NVIC_SetPriority(DMA2_Channel2_IRQn, 1, 0);
     HAL_NVIC_EnableIRQ(DMA2_Channel2_IRQn);
 
     // LCD enable transmit interrupt
-    HAL_NVIC_SetPriority(SPI3_IRQn, 0, 1);
+    HAL_NVIC_SetPriority(SPI3_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(SPI3_IRQn);
 
     /* USER CODE END SPI3_MspInit 1 */

@@ -191,7 +191,7 @@ void st7789_set_window(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
     st7789_write_cmd(0x2C);
 }
 
-#define ST7789_FILL_COLOR_SIZE  (ST7789_W) * (ST7789_H) / 20
+#define ST7789_FILL_COLOR_SIZE  (ST7789_W) * (ST7789_H) / 10
 
 void st7789_fill_color(uint16_t color)
 {
@@ -216,6 +216,9 @@ void st7789_fill_color(uint16_t color)
         if (HAL_SPI_Transmit_DMA(&st7789_spi_handler, buf, ST7789_FILL_COLOR_SIZE) != HAL_OK) {
         	__NOP();
         }
+        // wait for onece DMA transfer done
+        // NOTE:bad reslution
+        HAL_Delay(1);
     }
 	#else
 	for (uint8_t j = 0; j < ST7789_H; ++j) {
