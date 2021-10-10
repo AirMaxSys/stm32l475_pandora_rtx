@@ -21,7 +21,7 @@
 #include "spi.h"
 
 /* USER CODE BEGIN 0 */
-
+DMA_HandleTypeDef hdma_spi3_tx;
 /* USER CODE END 0 */
 
 SPI_HandleTypeDef hspi1;
@@ -87,7 +87,7 @@ void MX_SPI3_Init(void)
   hspi3.Init.CLKPolarity = SPI_POLARITY_HIGH;
   hspi3.Init.CLKPhase = SPI_PHASE_2EDGE;
   hspi3.Init.NSS = SPI_NSS_SOFT;
-  hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
+  hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
   hspi3.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi3.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi3.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -158,7 +158,6 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
   else if(spiHandle->Instance==SPI3)
   {
   /* USER CODE BEGIN SPI3_MspInit 0 */
-
   /* USER CODE END SPI3_MspInit 0 */
     /* SPI3 clock enable */
     __HAL_RCC_SPI3_CLK_ENABLE();
@@ -177,7 +176,30 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
 
   /* USER CODE BEGIN SPI3_MspInit 1 */
 
-  /* USER CODE END SPI3_MspInit 1 */
+    hdma_spi3_tx.Instance = DMA2_Channel2;
+    hdma_spi3_tx.Init.Request = DMA_REQUEST_0;
+    hdma_spi3_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    hdma_spi3_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_spi3_tx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_spi3_tx.Init.Mode = DMA_CIRCULAR;
+    hdma_spi3_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_spi3_tx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_spi3_tx.Init.Priority = DMA_PRIORITY_HIGH;
+
+	__HAL_RCC_DMA1_CLK_ENABLE();
+	__HAL_RCC_DMA2_CLK_ENABLE();
+    HAL_DMA_Init(&hdma_spi3_tx);
+    __HAL_LINKDMA(&hspi3, hdmatx, hdma_spi3_tx);
+
+    // LCD transmition using DMA
+    HAL_NVIC_SetPriority(DMA2_Channel2_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(DMA2_Channel2_IRQn);
+
+    // LCD enable transmit interrupt
+    HAL_NVIC_SetPriority(SPI3_IRQn, 0, 1);
+    HAL_NVIC_EnableIRQ(SPI3_IRQn);
+
+    /* USER CODE END SPI3_MspInit 1 */
   }
 }
 

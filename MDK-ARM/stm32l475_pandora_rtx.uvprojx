@@ -17,8 +17,8 @@
         <TargetCommonOption>
           <Device>STM32L475VETx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32L4xx_DFP.2.2.0</PackID>
-          <PackURL>http://www.keil.com/pack</PackURL>
+          <PackID>Keil.STM32L4xx_DFP.2.5.0</PackID>
+          <PackURL>https://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000-0x20017FFF) IRAM2(0x10000000-0x10007FFF) IROM(0x8000000-0x807FFFF) CLOCK(8000000) FPU2 CPUTYPE("Cortex-M4")</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
@@ -719,9 +719,9 @@
               <FilePath>..\BSP\i2c_soft.c</FilePath>
             </File>
             <File>
-              <FileName>tft.c</FileName>
+              <FileName>st7789v2.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\BSP\tft.c</FilePath>
+              <FilePath>..\BSP\st7789v2.c</FilePath>
             </File>
           </Files>
         </Group>

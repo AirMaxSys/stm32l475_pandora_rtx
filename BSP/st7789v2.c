@@ -11,10 +11,11 @@
 */
 
 #include "st7789v2.h"
-#include "common.h"
 #include "config.h"
+#include "main.h"
 
 extern SPI_HandleTypeDef hspi3;
+#define st7789_spi_handler hspi3
 
 static inline void st7789_delay(const uint16_t ms)
 {
@@ -27,25 +28,31 @@ static inline void st7789_delay(const uint16_t ms)
 #endif
 }
 
-static inline void st7789_pin_write(const GPIO_TypeDef *port, uint16_t pin, uint32_t state)
+static inline void st7789_pin_write(GPIO_TypeDef *port, uint16_t pin, uint32_t state)
 {
     HAL_GPIO_WritePin(port, pin, state);
 }
 
-static void st7789_write_cmd(const uint8_t cmd)
+static void st7789_write_cmd(uint8_t cmd)
 {
     st7789_pin_write(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_RESET);
     st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit_IT(&hspi3, &cmd, 1);
+    HAL_SPI_Transmit_IT(&st7789_spi_handler, &cmd, 1);
     st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);
 }
 
-static void st7789_write_data(const uint8_t data)
+static void st7789_write_data(uint8_t data)
 {
     st7789_pin_write(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_SET);
     st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit_IT(&hspi3, &data, 1);
+    HAL_SPI_Transmit_IT(&st7789_spi_handler, &data, 1);
     st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);
+}
+
+static void st7789_write_half_word(const uint16_t data)
+{
+    uint8_t buf[2] = {data >> 8, data};
+    HAL_SPI_Transmit_IT(&st7789_spi_handler, buf, 2);
 }
 
 void st7789_power_on(void)
@@ -160,7 +167,76 @@ void st7789_init(void)
     /* wait for power stability */
     st7789_delay(100);
 
+    st7789_fill_color(COLOR_WHITE);
+
     /* Display on*/
     st7789_power_on();
     st7789_write_cmd(0x29);
+}
+
+void st7789_set_window(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
+{
+    st7789_write_cmd(0x2a);
+    st7789_write_data(x1 >> 8);
+    st7789_write_data(x1);
+    st7789_write_data(x2 >> 8);
+    st7789_write_data(x2);
+
+    st7789_write_cmd(0x2b);
+    st7789_write_data(y1 >> 8);
+    st7789_write_data(y1);
+    st7789_write_data(y2 >> 8);
+    st7789_write_data(y2);
+
+    st7789_write_cmd(0x2C);
+}
+
+#define ST7789_FILL_COLOR_SIZE  (ST7789_W) * (ST7789_H) / 20
+
+void st7789_fill_color(uint16_t color)
+{
+    uint16_t i;
+    uint8_t data[2] = {0};
+    uint8_t buf[ST7789_FILL_COLOR_SIZE] = {0};
+
+    data[0] = color >> 8;
+    data[1] = color;
+
+    st7789_set_window(0, 0, ST7789_W - 1, ST7789_H - 1);
+
+    for (i = 0; i < ST7789_FILL_COLOR_SIZE / 2; ++i) {
+        buf[i * 2] = data[0];
+        buf[i * 2 + 1] = data[1];
+    }
+
+    st7789_pin_write(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_SET);
+	st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET);
+	#if 1
+    extern DMA_HandleTypeDef hdma_spi3_tx;
+    for (i = 0; i < 20; ++i) {
+        if (HAL_SPI_Transmit_DMA(&st7789_spi_handler, buf, ST7789_FILL_COLOR_SIZE) != HAL_OK) {
+        	__NOP();
+        }
+        hspi3.State = HAL_SPI_STATE_READY;
+        HAL_DMA_IRQHandler(&hdma_spi3_tx);
+    }
+	#else
+	for (uint8_t j = 0; j < ST7789_H; ++j) {
+		for (uint8_t k = 0; k < ST7789_W; ++k) {
+			HAL_SPI_Transmit_IT(&st7789_spi_handler, data, 2);
+		}
+	}
+	#endif
+	st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);
+}
+
+void st7789_draw_point(uint16_t x, uint16_t y, uint16_t color)
+{
+    st7789_set_window(x, y, x, y);
+    st7789_write_half_word(color);
+}
+
+void st7789_draw_line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
+{
+    
 }

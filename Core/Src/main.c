@@ -32,7 +32,8 @@
 /* USER CODE BEGIN Includes */
 #include "cmsis_os2.h"
 #include "aht10.h"
-#include "tft.h"
+#include "st7789v2.h"
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -91,35 +92,17 @@ void temp_humi_smaple_task(void *argv)
 
 void lcd_display_task(void *argv)
 {
-    uint8_t txbuf[3] = {63, 0, 0};
-	(void)argv;
-	tft_power_on();
-    tft_read_display_id();
-    tft_init();
-	tft_set_display_window(0, 0, 240, 360);
-	while(1) {
-        TFT_CS_LO();
-        TFT_WR_DAT();
-        for (uint16_t i = 0; i < 240; ++i) {
-            for (uint16_t k = 0; k < 360; ++k) {
-                HAL_SPI_Transmit(&hspi3, txbuf, 3, HAL_MAX_DELAY);
-            }
-        }
-        TFT_CS_HI();
-        osDelay(500);
-		
-		txbuf[0] = 125;
-		txbuf[1] = 125;
-		tft_set_display_window(50, 50, 150, 150);
-        TFT_CS_LO();
-        TFT_WR_DAT();
-        for (uint16_t i = 0; i < 100; ++i) {
-            for (uint16_t k = 0; k < 100; ++k) {
-                HAL_SPI_Transmit(&hspi3, txbuf, 3, HAL_MAX_DELAY);
-            }
-        }
-        TFT_CS_HI();
-	}
+    st7789_init();
+    for ( ;; ) {
+        #if 1
+        st7789_fill_color(COLOR_BLUE);
+        osDelay(1000);
+        st7789_fill_color(COLOR_BRED);
+        osDelay(1000);
+        st7789_fill_color(COLOR_CYAN);
+        osDelay(1000);
+        #endif
+    }
 }
 /* USER CODE END 0 */
 
@@ -161,7 +144,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
   /* USER CODE BEGIN 2 */
-  
+#if 0
   // Initialize CMSIS-RTOS
   osKernelInitialize();
   // Create tasks
@@ -170,15 +153,24 @@ int main(void)
   osThreadNew(lcd_display_task, NULL, NULL);
   // Start task excution
   osKernelStart();
-  
+#endif
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  st7789_init();
+  
   while (1)
   {
     /* USER CODE END WHILE */
-
+        st7789_fill_color(COLOR_BLUE);
+        HAL_Delay(1000);
+        st7789_fill_color(COLOR_BRED);
+        HAL_Delay(1000);
+        st7789_fill_color(COLOR_CYAN);
+        HAL_Delay(1000);
+        st7789_fill_color(COLOR_YELLOW);
+        HAL_Delay(1000);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
