@@ -212,13 +212,10 @@ void st7789_fill_color(uint16_t color)
     st7789_pin_write(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_SET);
 	st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET);
 	#if 1
-    extern DMA_HandleTypeDef hdma_spi3_tx;
     for (i = 0; i < 20; ++i) {
         if (HAL_SPI_Transmit_DMA(&st7789_spi_handler, buf, ST7789_FILL_COLOR_SIZE) != HAL_OK) {
         	__NOP();
         }
-        hspi3.State = HAL_SPI_STATE_READY;
-        HAL_DMA_IRQHandler(&hdma_spi3_tx);
     }
 	#else
 	for (uint8_t j = 0; j < ST7789_H; ++j) {

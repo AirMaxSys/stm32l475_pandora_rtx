@@ -180,15 +180,6 @@ void SPI3_IRQHandler(void)
     HAL_SPI_IRQHandler(&hspi3);
 }
 
-void DMA1_Channel1_IRQHandler(void)
-{
-    HAL_DMA_IRQHandler(&hdma_spi3_tx);
-}
-void DMA1_Channel2_IRQHandler(void)
-{
-    HAL_DMA_IRQHandler(&hdma_spi3_tx);
-}
-
 void DMA2_Channel2_IRQHandler(void)
 {
     HAL_DMA_IRQHandler(&hdma_spi3_tx);

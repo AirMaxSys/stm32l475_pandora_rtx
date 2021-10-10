@@ -158,6 +158,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
   else if(spiHandle->Instance==SPI3)
   {
   /* USER CODE BEGIN SPI3_MspInit 0 */
+	__HAL_RCC_DMA2_CLK_ENABLE();
   /* USER CODE END SPI3_MspInit 0 */
     /* SPI3 clock enable */
     __HAL_RCC_SPI3_CLK_ENABLE();
@@ -177,7 +178,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
   /* USER CODE BEGIN SPI3_MspInit 1 */
 
     hdma_spi3_tx.Instance = DMA2_Channel2;
-    hdma_spi3_tx.Init.Request = DMA_REQUEST_0;
+    hdma_spi3_tx.Init.Request = DMA_REQUEST_3;
     hdma_spi3_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
     hdma_spi3_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_spi3_tx.Init.MemInc = DMA_MINC_ENABLE;
@@ -186,8 +187,6 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     hdma_spi3_tx.Init.PeriphInc = DMA_PINC_DISABLE;
     hdma_spi3_tx.Init.Priority = DMA_PRIORITY_HIGH;
 
-	__HAL_RCC_DMA1_CLK_ENABLE();
-	__HAL_RCC_DMA2_CLK_ENABLE();
     HAL_DMA_Init(&hdma_spi3_tx);
     __HAL_LINKDMA(&hspi3, hdmatx, hdma_spi3_tx);
 
