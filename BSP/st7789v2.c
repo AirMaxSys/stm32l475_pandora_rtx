@@ -22,6 +22,12 @@ extern SPI_HandleTypeDef hspi3;
 #define st7789_spi_handler      hspi3
 #define st7789_dma_tx_handler   hdma_spi3_tx
 
+static inline void st7789_wait_dma_tc(void)
+{
+    while (__HAL_DMA_GET_FLAG(&st7789_dma_tx_handler, DMA_FLAG_TC2) == RESET)
+        ;
+}
+
 static void st7789_clear_spi_dma_flag_state(SPI_HandleTypeDef *hspi, DMA_HandleTypeDef *hdma)
 {
     // Clear DMA half transfer and transfer complete flags
@@ -69,7 +75,10 @@ static void st7789_write_data(uint8_t data)
 static void st7789_write_half_word(const uint16_t data)
 {
     uint8_t buf[2] = {data >> 8, data};
+    st7789_pin_write(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_SET);
+    st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET);
     HAL_SPI_Transmit_IT(&st7789_spi_handler, buf, 2);
+    st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);
 }
 
 void st7789_power_on(void)
@@ -210,7 +219,6 @@ void st7789_set_window(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 
 void st7789_fill_color(uint16_t color)
 {
-    uint16_t i;
     uint8_t data[2] = {0};
     uint8_t buf[ST7789_FILL_COLOR_SIZE] = {0};
 
@@ -219,7 +227,8 @@ void st7789_fill_color(uint16_t color)
 
     st7789_set_window(0, 0, ST7789_W - 1, ST7789_H - 1);
 
-    for (i = 0; i < ST7789_FILL_COLOR_SIZE / 2; ++i) {
+    // Fill transmition buffer
+    for (uint16_t i = 0; i < ST7789_FILL_COLOR_SIZE / 2; ++i) {
         buf[i * 2] = data[0];
         buf[i * 2 + 1] = data[1];
     }
@@ -227,23 +236,21 @@ void st7789_fill_color(uint16_t color)
     // Setting DC pin high to transmit data and select SPI CS
     st7789_pin_write(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_SET);
 	st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET);
-	#if 1
-    for (i = 0; i < 20; ++i) {
+
+#if 1
+    for (uint8_t i = 0; i < 20; ++i) {
         if (HAL_SPI_Transmit_DMA(&st7789_spi_handler, buf, ST7789_FILL_COLOR_SIZE) != HAL_OK)
             __NOP();
         // Polling untill transmition done
-        while (__HAL_DMA_GET_FLAG(&st7789_dma_tx_handler, DMA_FLAG_TC2) == RESET)
-            ;
+        st7789_wait_dma_tc();
         // Clear flags and reset state
         st7789_clear_spi_dma_flag_state(&st7789_spi_handler, &st7789_dma_tx_handler);
     }
-	#else
-	for (uint8_t j = 0; j < ST7789_H; ++j) {
-		for (uint8_t k = 0; k < ST7789_W; ++k) {
-			HAL_SPI_Transmit_IT(&st7789_spi_handler, data, 2);
-		}
-	}
-	#endif
+#else
+    for (uint16_t i = 0; i < ST7789_H; ++i)
+        for (uint16_t j = 0; j < ST7789_W; ++j)
+            HAL_SPI_Transmit_IT(&st7789_spi_handler, data, 2);
+#endif
     // Unselect SPI CS pin
 	st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);
 }
@@ -256,5 +263,82 @@ void st7789_draw_point(uint16_t x, uint16_t y, uint16_t color)
 
 void st7789_draw_line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
+    if (x1 > ST7789_W || x2 > ST7789_W || y1 > ST7789_H || y2 > ST7789_H)
+        return;
     
+    // Fast drawing line
+    if (y1 == y2 || x1 == x2) {
+        uint16_t t = 0;
+        uint8_t buf[ST7789_W*2] = {0};
+
+        if (y1 == y2) {
+            t = (x2 > x1) ? (x2 - x1) : (x1 - x2);
+        } else {
+            t = (y2 > y1) ? (y2 - y1) : (y1 - y2);
+        }
+
+        for (uint16_t i = 0; i < t; ++i) {
+            buf[2*i] = COLOR_BLACK >> 8;
+            buf[2*i+1] = COLOR_BLACK;
+        }
+
+        st7789_set_window(x1, y1, x2, y2);
+
+        st7789_pin_write(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_SET);
+        st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET);
+        HAL_SPI_Transmit_DMA(&st7789_spi_handler, buf, 2*t);
+        st7789_wait_dma_tc();
+        st7789_clear_spi_dma_flag_state(&st7789_spi_handler, &st7789_dma_tx_handler);
+        st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);
+    } else {
+        int delta, delta_x, delta_y, row, colum, inc_x, inc_y;
+        int xerr = 0, yerr = 0;
+        
+        delta_x = x2 - x1;
+        delta_y = y2 - y1;
+        row = x1;
+        colum = y1;
+
+        if (delta_x > 0) {
+            inc_x = 1;
+        } else if (delta_x == 0) {
+            inc_x = 0;
+        } else {
+            inc_x = -1;
+            delta_x = -delta_x;
+        }
+
+        if (delta_y > 0) {
+            inc_y = 1;
+        } else if (delta_y == 0) {
+            inc_y = 0;
+        } else {
+            inc_y = -1;
+            delta_y = -delta_y;
+        }
+
+        delta = (delta_x > delta_y) ? delta_x : delta_y;
+
+        for (int i = 0; i <= delta + 1; ++i) {
+            st7789_draw_point(row, colum, COLOR_BLACK);
+            xerr += delta_x;
+            yerr += delta_y;
+            if (xerr > delta) {
+                xerr -= delta;
+                row += inc_x;
+            }
+            if (yerr > delta) {
+                yerr -= delta;
+                colum += inc_y;
+            }
+        }
+    }
+}
+
+void st7789_draw_rectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
+{
+    st7789_draw_line(x1, y1, x2, y1);
+    st7789_draw_line(x1, y1, x1, y2);
+    st7789_draw_line(x1, y2, x2, y2);
+    st7789_draw_line(x2, y1, x2, y2);
 }

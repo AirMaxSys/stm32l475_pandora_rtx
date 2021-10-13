@@ -163,6 +163,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+#if 0
         st7789_fill_color(COLOR_BLUE);
         HAL_Delay(200);
         st7789_fill_color(COLOR_BRED);
@@ -171,6 +172,15 @@ int main(void)
         HAL_Delay(200);
         st7789_fill_color(COLOR_YELLOW);
         HAL_Delay(200);
+#endif
+    st7789_draw_line(50, 70, 200, 70);
+    st7789_draw_line(10, 70, 10, 120);
+    st7789_draw_line(100, 20, 120, 50);
+    st7789_draw_rectangle(50, 80, 200, 160);
+    st7789_draw_line(50, 80, 200, 160);
+    st7789_draw_line(50, 160, 200, 80);
+    for (int i = 0; i < 20; ++i)
+        st7789_draw_point(200+i, 200, COLOR_GBLUE);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
