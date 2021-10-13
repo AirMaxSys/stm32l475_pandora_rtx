@@ -164,13 +164,13 @@ int main(void)
   {
     /* USER CODE END WHILE */
         st7789_fill_color(COLOR_BLUE);
-        HAL_Delay(1000);
+        HAL_Delay(200);
         st7789_fill_color(COLOR_BRED);
-        HAL_Delay(1000);
+        HAL_Delay(200);
         st7789_fill_color(COLOR_CYAN);
-        HAL_Delay(1000);
+        HAL_Delay(200);
         st7789_fill_color(COLOR_YELLOW);
-        HAL_Delay(1000);
+        HAL_Delay(200);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

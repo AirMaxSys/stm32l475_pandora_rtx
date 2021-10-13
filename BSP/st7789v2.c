@@ -14,8 +14,25 @@
 #include "config.h"
 #include "main.h"
 
+extern DMA_HandleTypeDef hdma_spi3_tx;
 extern SPI_HandleTypeDef hspi3;
-#define st7789_spi_handler hspi3
+
+#define ST7789_FILL_COLOR_SIZE  (ST7789_W) * (ST7789_H) / 10
+
+#define st7789_spi_handler      hspi3
+#define st7789_dma_tx_handler   hdma_spi3_tx
+
+static void st7789_clear_spi_dma_flag_state(SPI_HandleTypeDef *hspi, DMA_HandleTypeDef *hdma)
+{
+    // Clear DMA half transfer and transfer complete flags
+    hdma->DmaBaseAddress->IFCR = DMA_ISR_HTIF1 << (hdma->ChannelIndex & 0x1CU);
+    hdma->DmaBaseAddress->IFCR = DMA_ISR_TCIF1 << (hdma->ChannelIndex & 0x1CU);
+    // Reset SPI and DMA handler state
+    hspi->State = HAL_SPI_STATE_READY;
+    hdma->State = HAL_DMA_STATE_READY;
+    // According to HAL_DMA_IRQHandler() funtion must unlock DMA handler
+    __HAL_UNLOCK(hdma);
+}
 
 static inline void st7789_delay(const uint16_t ms)
 {
@@ -191,8 +208,6 @@ void st7789_set_window(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
     st7789_write_cmd(0x2C);
 }
 
-#define ST7789_FILL_COLOR_SIZE  (ST7789_W) * (ST7789_H) / 10
-
 void st7789_fill_color(uint16_t color)
 {
     uint16_t i;
@@ -209,16 +224,18 @@ void st7789_fill_color(uint16_t color)
         buf[i * 2 + 1] = data[1];
     }
 
+    // Setting DC pin high to transmit data and select SPI CS
     st7789_pin_write(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_SET);
 	st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET);
 	#if 1
     for (i = 0; i < 20; ++i) {
-        if (HAL_SPI_Transmit_DMA(&st7789_spi_handler, buf, ST7789_FILL_COLOR_SIZE) != HAL_OK) {
-        	__NOP();
-        }
-        // wait for onece DMA transfer done
-        // NOTE:bad reslution
-        HAL_Delay(1);
+        if (HAL_SPI_Transmit_DMA(&st7789_spi_handler, buf, ST7789_FILL_COLOR_SIZE) != HAL_OK)
+            __NOP();
+        // Polling untill transmition done
+        while (__HAL_DMA_GET_FLAG(&st7789_dma_tx_handler, DMA_FLAG_TC2) == RESET)
+            ;
+        // Clear flags and reset state
+        st7789_clear_spi_dma_flag_state(&st7789_spi_handler, &st7789_dma_tx_handler);
     }
 	#else
 	for (uint8_t j = 0; j < ST7789_H; ++j) {
@@ -227,6 +244,7 @@ void st7789_fill_color(uint16_t color)
 		}
 	}
 	#endif
+    // Unselect SPI CS pin
 	st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);
 }
 
