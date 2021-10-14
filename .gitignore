@@ -4,3 +4,5 @@ MDK-ARM/**
 !MDK-ARM/*.uvprojx
 out/
 build/
+# LVGL build system
+*.mk
