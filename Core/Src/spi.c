@@ -180,20 +180,20 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     hdma_spi3_tx.Instance = DMA2_Channel2;
     hdma_spi3_tx.Init.Request = DMA_REQUEST_3;
     hdma_spi3_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
-    hdma_spi3_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_spi3_tx.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
     hdma_spi3_tx.Init.MemInc = DMA_MINC_ENABLE;
     hdma_spi3_tx.Init.Mode = DMA_NORMAL;
-    hdma_spi3_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_spi3_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
     hdma_spi3_tx.Init.PeriphInc = DMA_PINC_DISABLE;
     hdma_spi3_tx.Init.Priority = DMA_PRIORITY_HIGH;
 
     HAL_DMA_Init(&hdma_spi3_tx);
     __HAL_LINKDMA(&hspi3, hdmatx, hdma_spi3_tx);
 
-    // LCD transmition using DMA
+    // LCD transmission using DMA
     // NOTE:
     // 1 DMA TC or HT interrupt priority cannot higher than SPI TC
-    // 2 Don't enable IRQ because it will polling TC flag to start next DMA transmition
+    // 2 Don't enable IRQ because it will polling TC flag to start next DMA transmission
 #if 0
     HAL_NVIC_SetPriority(DMA2_Channel2_IRQn, 1, 0);
     HAL_NVIC_EnableIRQ(DMA2_Channel2_IRQn);

@@ -227,7 +227,7 @@ void st7789_fill_color(uint16_t color)
 
     st7789_set_window(0, 0, ST7789_W - 1, ST7789_H - 1);
 
-    // Fill transmition buffer
+    // Fill transmission buffer
     for (uint16_t i = 0; i < ST7789_FILL_COLOR_SIZE / 2; ++i) {
         buf[i * 2] = data[0];
         buf[i * 2 + 1] = data[1];
@@ -241,7 +241,7 @@ void st7789_fill_color(uint16_t color)
     for (uint8_t i = 0; i < 20; ++i) {
         if (HAL_SPI_Transmit_DMA(&st7789_spi_handler, buf, ST7789_FILL_COLOR_SIZE) != HAL_OK)
             __NOP();
-        // Polling untill transmition done
+        // Polling untill transmission done
         st7789_wait_dma_tc();
         // Clear flags and reset state
         st7789_clear_spi_dma_flag_state(&st7789_spi_handler, &st7789_dma_tx_handler);
