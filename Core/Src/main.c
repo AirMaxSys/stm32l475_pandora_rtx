@@ -33,6 +33,11 @@
 #include "cmsis_os2.h"
 #include "aht10.h"
 #include "st7789v2.h"
+#include "tft_lvgl_layer.h"
+
+#include "lvgl.h"
+
+#include "lv_example_widgets.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -94,14 +99,12 @@ void lcd_display_task(void *argv)
 {
     st7789_init();
     for ( ;; ) {
-        #if 1
         st7789_fill_color(COLOR_BLUE);
         osDelay(1000);
         st7789_fill_color(COLOR_BRED);
         osDelay(1000);
         st7789_fill_color(COLOR_CYAN);
         osDelay(1000);
-        #endif
     }
 }
 /* USER CODE END 0 */
@@ -158,12 +161,23 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+#define TEST_LVGL_LIB   0
+#define TEST_ST7789_DRIVER  1
+
+#if TEST_ST7789_DRIVER == 1
   st7789_init();
+#endif
   
+#if TEST_LVGL_LIB == 1
+    lv_init();
+    tft_lvgl_layer_init();
+
+#endif
+
   while (1)
   {
     /* USER CODE END WHILE */
-#if 1
+#if TEST_ST7789_DRIVER == 1
         st7789_fill_color(COLOR_BLUE);
         HAL_Delay(50);
         st7789_fill_color(COLOR_BRED);
@@ -172,16 +186,18 @@ int main(void)
         HAL_Delay(50);
         st7789_fill_color(COLOR_YELLOW);
         HAL_Delay(50);
+        st7789_draw_line(50, 70, 200, 70);
+        st7789_draw_line(10, 70, 10, 120);
+        st7789_draw_line(100, 20, 120, 50);
+        st7789_draw_rectangle(50, 80, 200, 160);
+        st7789_draw_line(50, 80, 200, 160);
+        st7789_draw_line(50, 160, 200, 80);
+        for (int i = 0; i < 20; ++i)
+            st7789_draw_point(200+i, 200, COLOR_GBLUE);
+        HAL_Delay(1000);
 #endif
-    st7789_draw_line(50, 70, 200, 70);
-    st7789_draw_line(10, 70, 10, 120);
-    st7789_draw_line(100, 20, 120, 50);
-    st7789_draw_rectangle(50, 80, 200, 160);
-    st7789_draw_line(50, 80, 200, 160);
-    st7789_draw_line(50, 160, 200, 80);
-    for (int i = 0; i < 20; ++i)
-        st7789_draw_point(200+i, 200, COLOR_GBLUE);
-    HAL_Delay(1000);
+      HAL_Delay(3);
+      lv_task_handler();
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

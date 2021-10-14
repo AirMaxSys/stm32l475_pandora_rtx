@@ -8,6 +8,8 @@
         "stdint.h": "c",
         "st7789v2.h": "c",
         "spi.h": "c",
-        "gpio.h": "c"
+        "gpio.h": "c",
+        "lvgl.h": "c",
+        "config.h": "c"
     }
 }

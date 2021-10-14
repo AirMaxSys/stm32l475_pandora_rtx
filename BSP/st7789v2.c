@@ -193,7 +193,7 @@ void st7789_init(void)
     /* wait for power stability */
     st7789_delay(100);
 
-    st7789_fill_color(COLOR_WHITE);
+    // st7789_fill_color(COLOR_WHITE);
 
     /* Display on*/
     st7789_power_on();
@@ -215,6 +215,40 @@ void st7789_set_window(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
     st7789_write_data(y2);
 
     st7789_write_cmd(0x2C);
+}
+
+void st7789_transfer_datas(uint8_t buffer[], uint32_t bufsize)
+{
+    uint8_t *pbuf = buffer;
+    const uint16_t chunk_size = 65535u;
+
+    // Setting DC pin high to transmit data and select SPI CS
+    st7789_pin_write(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_SET);
+	st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET);
+
+    // ST HAL LIB API of DMA transmisson only allow data size less than 65535
+    if (bufsize > chunk_size) {
+        while (bufsize >= chunk_size) {
+            HAL_SPI_Transmit_DMA(&st7789_spi_handler, pbuf, chunk_size);
+            st7789_wait_dma_tc();
+            st7789_clear_spi_dma_flag_state(&st7789_spi_handler, &st7789_dma_tx_handler);
+
+            bufsize -= chunk_size;
+            pbuf += chunk_size;
+        }
+        if (bufsize > 0) {
+            HAL_SPI_Transmit_DMA(&st7789_spi_handler, pbuf, bufsize);
+            st7789_wait_dma_tc();
+            st7789_clear_spi_dma_flag_state(&st7789_spi_handler, &st7789_dma_tx_handler);
+        }
+    } else {
+        HAL_SPI_Transmit_DMA(&st7789_spi_handler, pbuf, bufsize);
+        st7789_wait_dma_tc();
+        st7789_clear_spi_dma_flag_state(&st7789_spi_handler, &st7789_dma_tx_handler);
+    }
+    
+    // Unselect SPI CS pin
+    st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);
 }
 
 void st7789_fill_color(uint16_t color)
@@ -252,7 +286,7 @@ void st7789_fill_color(uint16_t color)
             HAL_SPI_Transmit_IT(&st7789_spi_handler, data, 2);
 #endif
     // Unselect SPI CS pin
-	st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);
+    st7789_pin_write(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);
 }
 
 void st7789_draw_point(uint16_t x, uint16_t y, uint16_t color)
