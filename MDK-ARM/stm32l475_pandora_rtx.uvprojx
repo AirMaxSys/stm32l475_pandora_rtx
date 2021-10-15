@@ -729,14 +729,39 @@
               <FilePath>..\BSP\tft_lvgl_layer.c</FilePath>
             </File>
             <File>
-              <FileName>img_star.c</FileName>
+              <FileName>lv_example_get_started_1.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\BSP\lvgl_example\img_star.c</FilePath>
+              <FilePath>..\BSP\lvgl_example\lv_example_get_started_1.c</FilePath>
             </File>
             <File>
-              <FileName>lv_example_btnmatrix_2.c</FileName>
+              <FileName>lv_example_get_started_2.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\BSP\lvgl_example\lv_example_btnmatrix_2.c</FilePath>
+              <FilePath>..\BSP\lvgl_example\lv_example_get_started_2.c</FilePath>
+            </File>
+            <File>
+              <FileName>lv_example_get_started_3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\lvgl_example\lv_example_get_started_3.c</FilePath>
+            </File>
+            <File>
+              <FileName>lv_example_style_1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\lvgl_example\lv_example_style_1.c</FilePath>
+            </File>
+            <File>
+              <FileName>lv_example_style_2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\lvgl_example\lv_example_style_2.c</FilePath>
+            </File>
+            <File>
+              <FileName>lv_example_style_3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\lvgl_example\lv_example_style_3.c</FilePath>
+            </File>
+            <File>
+              <FileName>lv_example_style_4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\lvgl_example\lv_example_style_4.c</FilePath>
             </File>
           </Files>
         </Group>

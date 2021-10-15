@@ -37,6 +37,8 @@
 
 #include "lvgl.h"
 
+#include "lv_example_style.h"
+#include "lv_example_get_started.h"
 #include "lv_example_widgets.h"
 
 #include <string.h>
@@ -161,8 +163,8 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-#define TEST_LVGL_LIB   0
-#define TEST_ST7789_DRIVER  1
+#define TEST_LVGL_LIB   1
+#define TEST_ST7789_DRIVER  0
 
 #if TEST_ST7789_DRIVER == 1
   st7789_init();
@@ -171,7 +173,7 @@ int main(void)
 #if TEST_LVGL_LIB == 1
     lv_init();
     tft_lvgl_layer_init();
-
+    lv_example_get_started_3();
 #endif
 
   while (1)

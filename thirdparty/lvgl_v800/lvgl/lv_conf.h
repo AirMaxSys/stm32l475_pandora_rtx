@@ -24,7 +24,7 @@
 #define LV_COLOR_DEPTH     16
 
 /*Swap the 2 bytes of RGB565 color. Useful if the display has a 8 bit interface (e.g. SPI)*/
-#define LV_COLOR_16_SWAP   0
+#define LV_COLOR_16_SWAP   1
 
 /*Enable more complex drawing routines to manage screens transparency.
  *Can be used if the UI is above an other layer, e.g. an OSD menu or video player.
@@ -42,7 +42,7 @@
 #define LV_MEM_CUSTOM      0
 #if LV_MEM_CUSTOM == 0
 /*Size of the memory available for `lv_mem_alloc()` in bytes (>= 2kB)*/
-#  define LV_MEM_SIZE    (32U * 1024U)          /*[bytes]*/
+#  define LV_MEM_SIZE    (20U * 1024U)          /*[bytes]*/
 
 /*Set an address for the memory pool instead of allocating it as a normal array. Can be in external SRAM too.*/
 #  define LV_MEM_ADR          0     /*0: unused*/
@@ -105,7 +105,7 @@
 #define LV_IMG_CACHE_DEF_SIZE       0
 
 /*Maximum buffer size to allocate for rotation. Only used if software rotation is enabled in the display driver.*/
-#define LV_DISP_ROT_MAX_BUF         (10*1024)
+#define LV_DISP_ROT_MAX_BUF         (64*1024)
 /*-------------
  * GPU
  *-----------*/
@@ -265,10 +265,10 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 #define LV_FONT_MONTSERRAT_8     0
 #define LV_FONT_MONTSERRAT_10    0
 #define LV_FONT_MONTSERRAT_12    0
-#define LV_FONT_MONTSERRAT_14    1
+#define LV_FONT_MONTSERRAT_14    0
 #define LV_FONT_MONTSERRAT_16    0
 #define LV_FONT_MONTSERRAT_18    0
-#define LV_FONT_MONTSERRAT_20    0
+#define LV_FONT_MONTSERRAT_20    1
 #define LV_FONT_MONTSERRAT_22    0
 #define LV_FONT_MONTSERRAT_24    0
 #define LV_FONT_MONTSERRAT_26    0
@@ -300,7 +300,7 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 #define LV_FONT_CUSTOM_DECLARE
 
 /*Always set a default font*/
-#define LV_FONT_DEFAULT &lv_font_montserrat_14
+#define LV_FONT_DEFAULT &lv_font_montserrat_20
 
 /*Enable handling large font and/or fonts with a lot of characters.
  *The limit depends on the font size, font face and bpp.
@@ -419,7 +419,7 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 /*-----------
  * Widgets
  *----------*/
-#define LV_USE_CALENDAR     1
+#define LV_USE_CALENDAR     0
 #if LV_USE_CALENDAR
 # define LV_CALENDAR_WEEK_STARTS_MONDAY 0
 # if LV_CALENDAR_WEEK_STARTS_MONDAY
@@ -433,33 +433,33 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 # define LV_USE_CALENDAR_HEADER_DROPDOWN    1
 #endif  /*LV_USE_CALENDAR*/
 
-#define LV_USE_CHART        1
+#define LV_USE_CHART        0
 
-#define LV_USE_COLORWHEEL   1
+#define LV_USE_COLORWHEEL   0
 
-#define LV_USE_IMGBTN       1
+#define LV_USE_IMGBTN       0
 
-#define LV_USE_KEYBOARD     1
+#define LV_USE_KEYBOARD     0
 
-#define LV_USE_LED          1
+#define LV_USE_LED          0
 
-#define LV_USE_LIST         1
+#define LV_USE_LIST         0
 
-#define LV_USE_METER        1
+#define LV_USE_METER        0
 
-#define LV_USE_MSGBOX       1
+#define LV_USE_MSGBOX       0
 
-#define LV_USE_SPINBOX      1
+#define LV_USE_SPINBOX      0
 
-#define LV_USE_SPINNER      1
+#define LV_USE_SPINNER      0
 
-#define LV_USE_TABVIEW      1
+#define LV_USE_TABVIEW      0
 
-#define LV_USE_TILEVIEW     1
+#define LV_USE_TILEVIEW     0
 
-#define LV_USE_WIN          1
+#define LV_USE_WIN          0
 
-#define LV_USE_SPAN         1
+#define LV_USE_SPAN         0
 #if LV_USE_SPAN
 /*A line text can contain maximum num of span descriptor */
 #  define LV_SPAN_SNIPPET_STACK_SIZE   64
@@ -503,7 +503,7 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 *==================*/
 
 /*Enable the examples to be built with the library*/
-#define LV_BUILD_EXAMPLES   1
+#define LV_BUILD_EXAMPLES   0
 
 /*--END OF LV_CONF_H--*/
 
