@@ -194,9 +194,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     // NOTE:
     // 1 DMA TC or HT interrupt priority cannot higher than SPI TC
     // 2 Don't enable IRQ because it will polling TC flag to start next DMA transmission
-#if 0
-    HAL_NVIC_SetPriority(DMA2_Channel2_IRQn, 1, 0);
-    HAL_NVIC_EnableIRQ(DMA2_Channel2_IRQn);
+#if 1
+    // HAL_NVIC_SetPriority(DMA2_Channel2_IRQn, 1, 0);
+    // HAL_NVIC_EnableIRQ(DMA2_Channel2_IRQn);
 #endif
 
     // LCD enable transmit interrupt

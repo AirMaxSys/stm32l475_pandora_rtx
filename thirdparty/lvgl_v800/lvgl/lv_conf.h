@@ -267,8 +267,8 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 #define LV_FONT_MONTSERRAT_12    0
 #define LV_FONT_MONTSERRAT_14    0
 #define LV_FONT_MONTSERRAT_16    0
-#define LV_FONT_MONTSERRAT_18    0
-#define LV_FONT_MONTSERRAT_20    1
+#define LV_FONT_MONTSERRAT_18    1
+#define LV_FONT_MONTSERRAT_20    0
 #define LV_FONT_MONTSERRAT_22    0
 #define LV_FONT_MONTSERRAT_24    0
 #define LV_FONT_MONTSERRAT_26    0
@@ -300,7 +300,7 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 #define LV_FONT_CUSTOM_DECLARE
 
 /*Always set a default font*/
-#define LV_FONT_DEFAULT &lv_font_montserrat_20
+#define LV_FONT_DEFAULT &lv_font_montserrat_18
 
 /*Enable handling large font and/or fonts with a lot of characters.
  *The limit depends on the font size, font face and bpp.
@@ -486,17 +486,17 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
  #define LV_USE_THEME_BASIC    1
 
 /*A theme designed for monochrome displays*/
-#define LV_USE_THEME_MONO       1
+#define LV_USE_THEME_MONO       0
 
 /*-----------
  * Layouts
  *----------*/
 
 /*A layout similar to Flexbox in CSS.*/
-#define LV_USE_FLEX     1
+#define LV_USE_FLEX     0
 
 /*A layout similar to Grid in CSS.*/
-#define LV_USE_GRID     1
+#define LV_USE_GRID     0
 
 /*==================
 * EXAMPLES

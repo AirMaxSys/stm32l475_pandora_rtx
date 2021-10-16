@@ -86,12 +86,6 @@ void Error_Handler(void);
 #define NRF_MISO_GPIO_Port GPIOB
 #define NRF_MOSI_Pin GPIO_PIN_15
 #define NRF_MOSI_GPIO_Port GPIOB
-#define BTN_two_Pin GPIO_PIN_8
-#define BTN_two_GPIO_Port GPIOD
-#define BTN_one_Pin GPIO_PIN_9
-#define BTN_one_GPIO_Port GPIOD
-#define BTN_zero_Pin GPIO_PIN_10
-#define BTN_zero_GPIO_Port GPIOD
 #define AUDIO_PWR_Pin GPIO_PIN_15
 #define AUDIO_PWR_GPIO_Port GPIOA
 #define ICM_INT_Pin GPIO_PIN_0

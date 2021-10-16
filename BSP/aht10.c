@@ -1,6 +1,6 @@
 #include "aht10.h"
 
-#define AHT10_DBG	1
+#define AHT10_DBG	0
 
 #define AHT10_I2C_ADDR		0x38u
 /* AHT10 commands*/
@@ -32,8 +32,10 @@ static void aht10_calibrate(void)
 	uint8_t cmd[] = {AHT10_CMD_CALIBRATE, 0x8, 0};
 	
 	if (i2c_soft_send_datas(cmd, 3, 1) != I2C_SOFT_ERR_NONE) {
+#if AHT10_DBG == 1
 		printf("aht10 calibrate I2C error\r\n");
-	}
+#endif
+    }
 }
 
 void aht10_init(aht10_t *paht)
@@ -41,7 +43,9 @@ void aht10_init(aht10_t *paht)
 	if (!paht)	return;
 
 	i2c_soft_init(&aht10_i2c_dev);
+#if AHT10_DBG == 1
 	printf("AHT10 init ok, status value is:0x%02x\r\n", aht10_status_reg());
+#endif
 	paht->temp = paht->humi = 0;
 	memset(paht->buf, 0x0, AHT10_BUFFER_SIZE);
 	aht10_calibrate();
@@ -53,14 +57,18 @@ void aht10_get_value(aht10_t *paht)
 	uint8_t cmd[] = {AHT10_CMD_FETCH_DAT, 0, 0};
 	
 	if ((ret = i2c_soft_send_datas(cmd, 3, 1)) != I2C_SOFT_ERR_NONE) {
+#if AHT10_DBG == 1
 		printf("aht10 get datas err send cmd err=%d\r\n", ret);
+#endif
 		return;
 	}
 	if (i2c_soft_recv_datas(paht->buf, 6) != I2C_SOFT_ERR_NONE) {
+#if AHT10_DBG == 1
 		printf("aht10 get datas err fetch datas\r\n");
+#endif
 		return;
 	}
-#ifdef AHT10_DBG
+#if AHT10_DBG == 1
 	printf("AHT10 fetch row data:");
 	for (uint8_t i = 0; i < AHT10_BUFFER_SIZE; ++i)
 		printf("0x%02x ", paht->buf[i]);
@@ -68,7 +76,7 @@ void aht10_get_value(aht10_t *paht)
 #endif
 	paht->humi = ((paht->buf[1]) << 12 | paht->buf[2] << 4 | (paht->buf[3] & 0xF0)) * 1000.0 / (1 << 20);
 	paht->temp = ((paht->buf[3] & 0xf) << 16 | paht->buf[4] << 8 | paht->buf[5]) * 2000.0 / (1 << 20);
-#ifdef AHT10_DBG
+#if AHT10_DBG == 1
 	printf("AHT10 temp:%.1f humi:%.1f%%\r\n", aht10_temp(paht), aht10_humi(paht));
 #endif
 }

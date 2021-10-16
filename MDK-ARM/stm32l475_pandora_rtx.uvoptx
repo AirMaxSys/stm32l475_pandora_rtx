@@ -152,34 +152,18 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>176</LineNumber>
+          <LineNumber>65</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134359650</Address>
+          <Address>134446528</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>../Core/Src/main.c</Filename>
+          <Filename>..\BSP\tft_lvgl_layer.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\stm32l475_pandora_rtx\../Core/Src/main.c\176</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>209</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134359702</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>../Core/Src/main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\stm32l475_pandora_rtx\../Core/Src/main.c\209</Expression>
+          <Expression>\\stm32l475_pandora_rtx\../BSP/tft_lvgl_layer.c\65</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -207,6 +191,11 @@
           <count>4</count>
           <WinNumber>1</WinNumber>
           <ItemText>res</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>pbuf[1]</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
@@ -291,7 +280,7 @@
 
   <Group>
     <GroupName>Application/User/Core</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1171,7 +1160,7 @@
 
   <Group>
     <GroupName>ThirdParty/LVGL</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

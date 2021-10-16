@@ -30,13 +30,13 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "config.h"
 #include "cmsis_os2.h"
 #include "aht10.h"
 #include "st7789v2.h"
-#include "tft_lvgl_layer.h"
 
 #include "lvgl.h"
-
+#include "tft_lvgl_layer.h"
 #include "lv_example_style.h"
 #include "lv_example_get_started.h"
 #include "lv_example_widgets.h"
@@ -86,6 +86,8 @@ void led_blink_task(void *argv)
 
 void temp_humi_smaple_task(void *argv)
 {
+    osMessageQueueId_t msgq = (osMessageQueueId_t)argv;
+    uint16_t msg[2] = {0};
 	aht10_t aht10;
 
 	aht10_init(&aht10);
@@ -93,7 +95,11 @@ void temp_humi_smaple_task(void *argv)
 	osDelay(300);
 	while (1) {
 		aht10_get_value(&aht10);
-		osDelay(2000);
+        // Put data to message queue
+        msg[0] = aht10.temp;
+        msg[1] = aht10.humi;
+        osMessageQueuePut(msgq, msg, 0, 0);
+        osThreadYield();
 	}
 }
 
@@ -107,6 +113,32 @@ void lcd_display_task(void *argv)
         osDelay(1000);
         st7789_fill_color(COLOR_CYAN);
         osDelay(1000);
+    }
+}
+
+void gui_task(void *argv)
+{
+    osStatus_t status;
+    osMessageQueueId_t msgq = (osMessageQueueId_t)argv;
+    uint16_t msg[2] = {0};
+
+    lv_init();
+    tft_lvgl_layer_init();
+
+    lv_obj_t * lb_temp = lv_label_create(lv_scr_act());          /*Add a label to the button*/
+    lv_obj_set_pos(lb_temp, 50, 50);
+
+    lv_obj_t * lb_humi = lv_label_create(lv_scr_act());          /*Add a label to the button*/
+    lv_obj_set_pos(lb_humi, 50, 100);
+
+    for (;;) {
+        status = osMessageQueueGet(msgq, msg, NULL, osWaitForever);
+        if (status == osOK) {
+            lv_label_set_text_fmt(lb_temp, "temp %.1f C", msg[0]/10.0-50);
+            lv_label_set_text_fmt(lb_humi, "humi %.1f %%", msg[1]/10.0);
+        }
+        // no need osDelay(5);
+        lv_task_handler();
     }
 }
 /* USER CODE END 0 */
@@ -149,30 +181,53 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
   /* USER CODE BEGIN 2 */
-#if 0
+
+#if TEST_RTX_RTOS == 1
   // Initialize CMSIS-RTOS
   osKernelInitialize();
+
+  // Create message queue for GUI and temperature and humidy smaple task
+  osMessageQueueId_t th2gui_msg_id = osMessageQueueNew(5, 2*sizeof(uint16_t), NULL);
+  if (th2gui_msg_id == NULL) {
+      for (;;);
+  }
   // Create tasks
-  osThreadNew(led_blink_task, NULL, NULL);
-  osThreadNew(temp_humi_smaple_task, NULL, NULL);
+  osThreadNew(led_blink_task, (void *)th2gui_msg_id, NULL);
+
+//   osThreadNew(temp_humi_smaple_task, NULL, NULL);
+  osTimerId_t th_timer_id = osTimerNew(temp_humi_smaple_task, osTimerPeriodic, (void *)th2gui_msg_id, NULL);
+  if (th_timer_id != NULL) {
+      if (osTimerStart(th_timer_id, 500) != osOK) {
+          for (;;) ;
+      }
+  }
+
+#if TEST_ST7789_DRIVER == 1
   osThreadNew(lcd_display_task, NULL, NULL);
+#endif
+
+#if TEST_LVGL_LIB == 1
+  osThreadNew(gui_task, (void *)th2gui_msg_id, NULL);
+#endif
+
   // Start task excution
   osKernelStart();
+
 #endif
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-#define TEST_LVGL_LIB   1
-#define TEST_ST7789_DRIVER  0
 
 #if TEST_ST7789_DRIVER == 1
   st7789_init();
 #endif
   
-#if TEST_LVGL_LIB == 1
+#if (TEST_LVGL_LIB == 1) && (TEST_RTX_RTOS == 0)
     lv_init();
     tft_lvgl_layer_init();
+    lv_example_get_started_1();
     lv_example_get_started_3();
 #endif
 
@@ -198,8 +253,10 @@ int main(void)
             st7789_draw_point(200+i, 200, COLOR_GBLUE);
         HAL_Delay(1000);
 #endif
-      HAL_Delay(3);
+#if (TEST_LVGL_LIB == 1) && (TEST_RTX_RTOS == 0)
+      HAL_Delay(2);
       lv_task_handler();
+#endif
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
