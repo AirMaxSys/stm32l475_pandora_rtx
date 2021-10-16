@@ -28,8 +28,6 @@
 #include "RTE_Components.h"
 #include CMSIS_device_header
 
-#ifdef  SysTick
-
 #ifndef SYSTICK_IRQ_PRIORITY
 #define SYSTICK_IRQ_PRIORITY    0xFFU
 #endif
@@ -128,5 +126,3 @@ __WEAK uint32_t OS_Tick_GetCount (void) {
 __WEAK uint32_t OS_Tick_GetOverflow (void) {
   return ((SysTick->CTRL >> 16) & 1U);
 }
-
-#endif  // SysTick

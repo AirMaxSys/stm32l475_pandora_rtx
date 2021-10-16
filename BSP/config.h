@@ -4,8 +4,8 @@
 #include "cmsis_os2.h"
 #include "stm32l4xx_hal.h"
 
-#define USE_RTX_RTOS    	0
-#define USING_ST_HAL_LIB	1
+#define USE_RTX_RTOS    	1
+#define USING_ST_HAL_LIB	0
 
 #define TEST_LVGL_LIB   1
 #define TEST_RTX_RTOS   1

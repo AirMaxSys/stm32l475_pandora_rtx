@@ -63,19 +63,20 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+static osMessageQueueId_t th2gui_msg_id;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+void HAL_init_systick_for_RTX(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 void led_blink_task(void *argv)
 {
+    (void)(argv);
 	while (1) {
 		HAL_GPIO_WritePin(LED_red_GPIO_Port, LED_red_Pin, GPIO_PIN_RESET);
 		osDelay(500);
@@ -86,7 +87,7 @@ void led_blink_task(void *argv)
 
 void temp_humi_smaple_task(void *argv)
 {
-    osMessageQueueId_t msgq = (osMessageQueueId_t)argv;
+    (void)(argv);
     uint16_t msg[2] = {0};
 	aht10_t aht10;
 
@@ -94,11 +95,15 @@ void temp_humi_smaple_task(void *argv)
 	// must wait at least 300ms
 	osDelay(300);
 	while (1) {
+        osDelay(200);
 		aht10_get_value(&aht10);
         // Put data to message queue
         msg[0] = aht10.temp;
         msg[1] = aht10.humi;
-        osMessageQueuePut(msgq, msg, 0, 0);
+        osStatus_t res = osMessageQueuePut(th2gui_msg_id, msg, 0, 0);
+        if (res != osOK) {
+            __nop();
+        }
         osThreadYield();
 	}
 }
@@ -116,28 +121,52 @@ void lcd_display_task(void *argv)
     }
 }
 
+static void gui_temp_label_text_update_cb(lv_event_t *e)
+{
+    lv_obj_t *label = lv_event_get_target(e);
+    uint16_t temp = *(uint16_t *)lv_event_get_user_data(e);
+
+    lv_label_set_text_fmt(label, "temp %.1f C", temp/10.0-50);
+}
+
+static void gui_humi_label_text_update_cb(lv_event_t *e)
+{
+    lv_obj_t *label = lv_event_get_target(e);
+    uint16_t humi = *(uint16_t *)lv_event_get_user_data(e);
+
+    lv_label_set_text_fmt(label, "humi %.1f %%", humi/10.0);
+}
+
 void gui_task(void *argv)
 {
+    (void)(argv);
     osStatus_t status;
-    osMessageQueueId_t msgq = (osMessageQueueId_t)argv;
     uint16_t msg[2] = {0};
 
     lv_init();
     tft_lvgl_layer_init();
 
     lv_obj_t * lb_temp = lv_label_create(lv_scr_act());          /*Add a label to the button*/
-    lv_obj_set_pos(lb_temp, 50, 50);
+    lv_obj_set_pos(lb_temp, 100, 50);
+    lv_obj_add_event_cb(lb_temp, gui_temp_label_text_update_cb, LV_EVENT_REFRESH, (void *)&msg[0]);
 
     lv_obj_t * lb_humi = lv_label_create(lv_scr_act());          /*Add a label to the button*/
-    lv_obj_set_pos(lb_humi, 50, 100);
+    lv_obj_set_pos(lb_humi, 100, 100);
+    lv_obj_add_event_cb(lb_humi, gui_humi_label_text_update_cb, LV_EVENT_REFRESH, (void *)&msg[1]);
 
     for (;;) {
-        status = osMessageQueueGet(msgq, msg, NULL, osWaitForever);
+        status = osMessageQueueGet(th2gui_msg_id, msg, NULL, osWaitForever);
         if (status == osOK) {
-            lv_label_set_text_fmt(lb_temp, "temp %.1f C", msg[0]/10.0-50);
-            lv_label_set_text_fmt(lb_humi, "humi %.1f %%", msg[1]/10.0);
+            // Refresh LVGL text label using event
+#if 1
+            lv_event_send(lb_temp, LV_EVENT_REFRESH, NULL);
+            lv_event_send(lb_humi, LV_EVENT_REFRESH, NULL);
+#else
+            lv_label_set_text_fmt(lb_temp, "temp  %.1f C", msg[0]/10.0-50);
+            lv_label_set_text_fmt(lb_humi, "humi  %.1f %%", msg[1]/10.0);
+#endif
         }
-        // no need osDelay(5);
+
         lv_task_handler();
     }
 }
@@ -182,32 +211,34 @@ int main(void)
   MX_USB_OTG_FS_PCD_Init();
   /* USER CODE BEGIN 2 */
 
+  // HAL_init_systick_for_RTX();
+
 #if TEST_RTX_RTOS == 1
   // Initialize CMSIS-RTOS
   osKernelInitialize();
 
   // Create message queue for GUI and temperature and humidy smaple task
-  osMessageQueueId_t th2gui_msg_id = osMessageQueueNew(5, 2*sizeof(uint16_t), NULL);
+  th2gui_msg_id = osMessageQueueNew(1, 2*sizeof(uint16_t), NULL);
   if (th2gui_msg_id == NULL) {
       for (;;);
   }
   // Create tasks
-  osThreadNew(led_blink_task, (void *)th2gui_msg_id, NULL);
+  osThreadNew(led_blink_task, NULL, NULL);
 
-//   osThreadNew(temp_humi_smaple_task, NULL, NULL);
-  osTimerId_t th_timer_id = osTimerNew(temp_humi_smaple_task, osTimerPeriodic, (void *)th2gui_msg_id, NULL);
-  if (th_timer_id != NULL) {
-      if (osTimerStart(th_timer_id, 500) != osOK) {
-          for (;;) ;
-      }
-  }
+  osThreadNew(temp_humi_smaple_task, NULL, NULL);
+//   osTimerId_t th_timer_id = osTimerNew(temp_humi_smaple_task, osTimerPeriodic, (void *)th2gui_msg_id, NULL);
+//   if (th_timer_id != NULL) {
+//       if (osTimerStart(th_timer_id, 500) != osOK) {
+//           for (;;) ;
+//       }
+//   }
 
 #if TEST_ST7789_DRIVER == 1
   osThreadNew(lcd_display_task, NULL, NULL);
 #endif
 
 #if TEST_LVGL_LIB == 1
-  osThreadNew(gui_task, (void *)th2gui_msg_id, NULL);
+  osThreadNew(gui_task, NULL, NULL);
 #endif
 
   // Start task excution
@@ -330,6 +361,14 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
+// Init SystemTick for RTX RTOS
+void HAL_init_systick_for_RTX(void)
+{
+    uint32_t sysclk = HAL_RCC_GetSysClockFreq();
+    SysTick_Config(sysclk/1000);
+    HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0U);
+}
+
 /* USER CODE END 4 */
 
 /**
@@ -349,7 +388,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
-
+  if (htim->Instance == TIM17) {
+    // LVGL tick need incerase in SystemTick(TIM17) handler
+    lv_tick_inc(1);
+  }
   /* USER CODE END Callback 1 */
 }
 
