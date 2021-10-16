@@ -56,7 +56,7 @@ static void tft_flush_cb(struct _lv_disp_drv_t * disp_drv, const lv_area_t * are
     uint16_t act_y2 = area->y2 > TFT_LVGL_LAYER_DISP_VER_RES - 1 ? TFT_LVGL_LAYER_DISP_VER_RES - 1 : area->y2;
 
     uint8_t *pbuf = (uint8_t *)color_p;
-    uint32_t bufsize = disp_drv->draw_buf->size * 2;
+    uint32_t bufsize = 2*(act_x2-act_x1+1)*(act_y2-act_y1+1);
 
     // Set address of drawing window
     st7789_set_window(act_x1, act_y1, act_x2, act_y2);
