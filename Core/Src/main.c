@@ -37,6 +37,7 @@
 
 #include "lvgl.h"
 #include "tft_lvgl_layer.h"
+#include "gui.h"
 #include "lv_example_style.h"
 #include "lv_example_get_started.h"
 #include "lv_example_widgets.h"
@@ -91,15 +92,21 @@ void temp_humi_smaple_task(void *argv)
     uint16_t msg[2] = {0};
 	aht10_t aht10;
 
+	// Wait sensor start work
+	osDelay(2000);
+
 	aht10_init(&aht10);
-	// must wait at least 300ms
-	osDelay(300);
+
 	while (1) {
-        osDelay(200);
+        // Smaple period
+        osDelay(1000);
 		aht10_get_value(&aht10);
+
         // Put data to message queue
         msg[0] = aht10.temp;
         msg[1] = aht10.humi;
+        if (msg[0] == 0 || msg[1] == 0)
+           osThreadYield();
         osStatus_t res = osMessageQueuePut(th2gui_msg_id, msg, 0, 0);
         if (res != osOK) {
             __nop();
@@ -121,52 +128,26 @@ void lcd_display_task(void *argv)
     }
 }
 
-static void gui_temp_label_text_update_cb(lv_event_t *e)
-{
-    lv_obj_t *label = lv_event_get_target(e);
-    uint16_t temp = *(uint16_t *)lv_event_get_user_data(e);
-
-    lv_label_set_text_fmt(label, "temp %.1f C", temp/10.0-50);
-}
-
-static void gui_humi_label_text_update_cb(lv_event_t *e)
-{
-    lv_obj_t *label = lv_event_get_target(e);
-    uint16_t humi = *(uint16_t *)lv_event_get_user_data(e);
-
-    lv_label_set_text_fmt(label, "humi %.1f %%", humi/10.0);
-}
-
 void gui_task(void *argv)
 {
     (void)(argv);
+    lv_obj_t *lb_temp, *lb_humi;
+    lv_obj_t *img_temp, *img_humi;
     osStatus_t status;
     uint16_t msg[2] = {0};
 
     lv_init();
     tft_lvgl_layer_init();
+    
+    gui_draw_temp_humi_icon_img(&img_temp, &img_humi);
+    gui_set_temp_humi_val_lb(&lb_temp, img_temp, &lb_humi, img_humi);
 
-    lv_obj_t * lb_temp = lv_label_create(lv_scr_act());          /*Add a label to the button*/
-    lv_obj_set_pos(lb_temp, 100, 50);
-    lv_obj_add_event_cb(lb_temp, gui_temp_label_text_update_cb, LV_EVENT_REFRESH, (void *)&msg[0]);
-
-    lv_obj_t * lb_humi = lv_label_create(lv_scr_act());          /*Add a label to the button*/
-    lv_obj_set_pos(lb_humi, 100, 100);
-    lv_obj_add_event_cb(lb_humi, gui_humi_label_text_update_cb, LV_EVENT_REFRESH, (void *)&msg[1]);
-
-    for (;;) {
-        status = osMessageQueueGet(th2gui_msg_id, msg, NULL, osWaitForever);
+    for (;;)
+    {
+        status = osMessageQueueGet(th2gui_msg_id, msg, NULL, 5);
         if (status == osOK) {
-            // Refresh LVGL text label using event
-#if 1
-            lv_event_send(lb_temp, LV_EVENT_REFRESH, NULL);
-            lv_event_send(lb_humi, LV_EVENT_REFRESH, NULL);
-#else
-            lv_label_set_text_fmt(lb_temp, "temp  %.1f C", msg[0]/10.0-50);
-            lv_label_set_text_fmt(lb_humi, "humi  %.1f %%", msg[1]/10.0);
-#endif
+            gui_temp_humi_val_update(lb_temp, lb_humi, msg);
         }
-
         lv_task_handler();
     }
 }
@@ -218,7 +199,7 @@ int main(void)
   osKernelInitialize();
 
   // Create message queue for GUI and temperature and humidy smaple task
-  th2gui_msg_id = osMessageQueueNew(1, 2*sizeof(uint16_t), NULL);
+  th2gui_msg_id = osMessageQueueNew(2, 2*sizeof(uint16_t), NULL);
   if (th2gui_msg_id == NULL) {
       for (;;);
   }
@@ -361,7 +342,7 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
-// Init SystemTick for RTX RTOS
+// Init SystemTick
 void HAL_init_systick_for_RTX(void)
 {
     uint32_t sysclk = HAL_RCC_GetSysClockFreq();
