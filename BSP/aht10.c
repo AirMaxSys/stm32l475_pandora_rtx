@@ -1,9 +1,11 @@
 #include "aht10.h"
+#include "config.h"
 
 #define AHT10_DBG	0
 
 #define AHT10_I2C_ADDR		0x38u
 /* AHT10 commands*/
+#define AHT10_NORMAL_CMD    0xA8u      //normal cmd
 #define AHT10_CMD_CALIBRATE	0xE1u
 #define AHT10_CMD_FETCH_DAT	0xACu
 
@@ -17,6 +19,17 @@ i2c_soft_t aht10_i2c_dev = {
 	.slave_addr = AHT10_I2C_ADDR,
 };
 
+static inline void aht10_delay(const uint16_t ms)
+{
+#if USE_RTX_RTOS == 1
+    osDelay(ms);
+#elif USING_UCOS_RTOS == 1
+#elif USING_FREE_RTOS == 1
+#elif USING_ST_HAL_LIB == 1
+    HAL_Delay(ms);
+#endif
+}
+
 uint8_t aht10_status_reg(void)
 {
 	// default status regster value is 0x19
@@ -29,13 +42,14 @@ uint8_t aht10_status_reg(void)
 
 static void aht10_calibrate(void)
 {
+    uint8_t tmp[] = {AHT10_NORMAL_CMD, 0x0, 0};
 	uint8_t cmd[] = {AHT10_CMD_CALIBRATE, 0x8, 0};
 	
-	if (i2c_soft_send_datas(cmd, 3, 1) != I2C_SOFT_ERR_NONE) {
-#if AHT10_DBG == 1
-		printf("aht10 calibrate I2C error\r\n");
-#endif
-    }
+	i2c_soft_send_datas(cmd, 3, 1);
+    aht10_delay(500);
+
+	i2c_soft_send_datas(cmd, 3, 1);
+    aht10_delay(450);
 }
 
 void aht10_init(aht10_t *paht)
@@ -48,6 +62,7 @@ void aht10_init(aht10_t *paht)
 #endif
 	paht->temp = paht->humi = 0;
 	memset(paht->buf, 0x0, AHT10_BUFFER_SIZE);
+
 	aht10_calibrate();
 }
 
