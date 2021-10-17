@@ -10,6 +10,7 @@
         "spi.h": "c",
         "gpio.h": "c",
         "lvgl.h": "c",
-        "config.h": "c"
+        "config.h": "c",
+        "gui.h": "c"
     }
 }

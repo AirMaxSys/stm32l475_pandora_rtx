@@ -763,6 +763,21 @@
               <FileType>1</FileType>
               <FilePath>..\BSP\lvgl_example\lv_example_style_4.c</FilePath>
             </File>
+            <File>
+              <FileName>img_humi_rgb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\assert\img_humi_rgb.c</FilePath>
+            </File>
+            <File>
+              <FileName>img_temp_rgb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\assert\img_temp_rgb.c</FilePath>
+            </File>
+            <File>
+              <FileName>gui.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\gui.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

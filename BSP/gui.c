@@ -31,10 +31,12 @@ void gui_set_temp_humi_val_lb(lv_obj_t **p_lb_temp, lv_obj_t *img_temp,
     lv_obj_t *lb_temp = lv_label_create(lv_scr_act());
     lv_obj_add_style(lb_temp, &lb_style, 0);
     lv_obj_align_to(lb_temp, img_temp, LV_ALIGN_BOTTOM_MID, 0, 55);
+    lv_label_set_text(lb_temp, "0.0");
 
     lv_obj_t *lb_humi = lv_label_create(lv_scr_act());
     lv_obj_add_style(lb_humi, &lb_style, 0);
     lv_obj_align_to(lb_humi, img_humi, LV_ALIGN_BOTTOM_MID, 0, 55);
+    lv_label_set_text(lb_humi, "0.0");
 
     *p_lb_temp = lb_temp;
     *p_lb_humi = lb_humi;
